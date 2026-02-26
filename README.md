@@ -1,55 +1,219 @@
-# Mintlify Starter Kit
+# LangChain Docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+🦜 **Welcome!** This repository contains the documentation build pipeline for LangChain projects.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+* 🏠 [`docs.langchain.com`](https://docs.langchain.com) is our docs home, centralizing LangChain, LangGraph, LangSmith, and LangChain Labs (Deep Agents, Open SWE, Open Agent Platform). This site is hosted on [Mintlify](https://mintlify.com).
+* 🛠️ `reference.langchain.com` is home to the API reference docs for LangChain, LangGraph, LangSmith, and LangChain integration packages (e.g., [`langchain-anthropic`](https://pypi.org/project/langchain-anthropic/), [`langchain-openai`](https://pypi.org/project/langchain-openai/)). These are static sites built from the source code and deployed to [Vercel](https://vercel.com).
+  * [`Python reference`](https://reference.langchain.com/python/)
+  * [`JavaScript/TypeScript reference`](https://reference.langchain.com/javascript/)
+* 💬 [`chat.langchain.com`](https://chat.langchain.com) is an AI-powered assistant that can answer questions about LangChain documentation.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+---
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+**Table of contents:**
 
-## AI-assisted writing
+- [LangChain Docs](#langchain-docs)
+  - [Contribute](#contribute)
+  - [Reference](#reference)
+    - [Repository structure](#repository-structure)
+      - [`docs.langchain.com`](#docslangchaincom)
+      - [`reference.langchain.com`](#referencelangchaincom)
+    - [File formats](#file-formats)
+    - [Available commands](#available-commands)
+  - [Troubleshooting](#troubleshooting)
+    - [`docs dev` not working / running](#docs-dev-not-working--running)
+    - [Mintlify `.venv` parsing error](#mintlify-venv-parsing-error)
+    - [Warning: page doesn't exist](#warning-page-doesnt-exist)
+    - [General Mintlify errors](#general-mintlify-errors)
 
-Set up your AI coding tool to work with Mintlify:
+---
+
+## Contribute
+
+To run a local preview of the documentation:
 
 ```bash
-npx skills add https://mintlify.com/docs
+git clone https://github.com/langchain-ai/docs.git
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
+```bash
+cd docs
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
+```bash
+make install
 ```
 
-View your local preview at `http://localhost:3000`.
+```bash
+make dev
+```
 
-## Publishing changes
+For more information on how to contribute to LangChain documentation, follow the steps outlined in the [contributing guide](https://docs.langchain.com/oss/python/contributing/overview). The contributing guide also explains our documentation types and their writing and quality standards.
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+For detailed information about setting up your development environment and contributing to documentation, see the [documentation contributing guide](https://docs.langchain.com/oss/python/contributing/documentation).
 
-## Need help?
+> [!IMPORTANT]
+> For contributing to reference docs, see the `README.md` file in the `/reference/python` and `/reference/javascript` directories.
 
-### Troubleshooting
+## Reference
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+### Repository structure
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+```text
+# --- docs.langchain.com ----------------------------------------------
+build/                    # Built docs (DO NOT EDIT)
+pipeline/                 # Build pipeline source code
+scripts/                  # Helper scripts
+src/                      # Source documentation files (< EDIT CONTENT HERE)
+    langsmith/            # LangSmith docs
+    oss/                  # LangChain, LangGraph, Deep Agents, and integrations docs
+    docs.json             # Mintlify site configuration and navigation
+tests/                    # Test files for the pipeline
+Makefile                  # Build targets
+pyproject.toml            # Dependencies
+
+# --- reference.langchain.com -----------------------------------------
+reference/                # Reference docs build pipelines
+    dist/                 # Built docs (DO NOT EDIT)
+    javascript/           # JS/TS reference build pipeline
+    python/               # Python reference build pipeline and source
+    package.json          # Vercel commands and dependencies
+    vercel.json           # Vercel configuration/redirects
+```
+
+#### `docs.langchain.com`
+
+The Mintlify docs pipeline is structured with `.mdx` source files in `/src` and build artifacts in `/build`. Mintlify deploys from the `/build` folder, which is generated by preprocessing logic.
+
+> [!IMPORTANT]
+> Never edit `/build` directly.
+
+The `/src/docs.json` file is used to configure the Mintlify site navigation and settings. Refer to the [Mintlify documentation](https://www.mintlify.com/docs/organize/navigation) for detailed syntax and component usage.
+
+Documentation changes follow a PR workflow where all tests must pass before merging. See the [contributing guidelines](https://docs.langchain.com/oss/python/contributing/documentation) for more details.
+
+#### `reference.langchain.com`
+
+Each language has its own build pipeline in `/reference/<language>`. Reference docs are built with a combination of automated docstring extraction and manually written content. Refer to the `README.md` in each folder for details on how to build and contribute.
+
+Built files are stored in `/reference/dist/{LANGUAGE}`, which is then deployed to Vercel. The build process is triggered automatically on pushes to `main` and can also be triggered manually via the Vercel dashboard.
+
+### File formats
+
+* **Markdown files** (`.md`, `.mdx`) - Standard documentation content
+* **Snippets** (`src/snippets/`) - Reusable MDX content that can be imported into multiple pages. **Important:** Snippets undergo special link preprocessing. When writing links in snippets, be careful about path segments.
+* **Jupyter notebooks** (`.ipynb`) - Converted to markdown during build, though **these are not recommended for new content!** Your PR will likely be rejected if you attempt to add a Jupyter notebook unless asked to by a maintainer.
+* **Assets** - Images and other files are copied to the build directory
+
+### Available commands
+
+**Make commands:**
+
+* `make dev` - Start development mode with file watching and live rebuild
+* `make build` - Build documentation to `./build` directory
+* `make mint-broken-links` - Check for broken links in built documentation (excludes integrations)
+* `make mint-broken-links-all` - Check for broken links in built documentation (includes all directories)
+* `make build-references` - Build reference docs
+* `make preview-references` - Preview reference docs using vercel
+* `make install` - Install all dependencies
+* `make clean` - Remove build artifacts
+* `make test` - Run the test suite
+* `make lint` - Check code style and formatting
+* `make format` - Auto-format code
+* `make lint_md` - Lint markdown files
+* `make lint_md_fix` - Lint and fix markdown files
+* `make help` - Show all available commands
+
+**`docs` CLI tool:**
+
+The `docs` command (installed as `uv run docs`) provides additional functionality:
+
+* **`docs migrate <path>`** - Convert MkDocs markdown/notebook files to Mintlify format
+  * `--dry-run` - Preview changes without writing files
+  * `--output <path>` - Specify output location (default: in-place)
+  * Supports `.md`, `.markdown`, `.ipynb` files
+
+* **`docs migrate-docusaurus <path>`** - Convert Docusaurus markdown/notebook files to Mintlify format
+  * `--dry-run` - Preview changes without writing files
+  * `--output <path>` - Specify output location (default: in-place)
+  * Supports `.md`, `.markdown`, `.mdx`, `.ipynb` files
+  * Converts Docusaurus-specific syntax (admonitions, tabs, imports, etc.)
+
+* **`docs mv <old_path> <new_path>`** - Move files and update cross-references
+  * `--dry-run` - Preview changes without moving files
+
+These can be used directly using the `Makefile` or via the `docs` CLI tool:
+
+* **`docs dev`** - Start development mode with file watching and hot reload
+  * Automatically rebuilds changed files from `src/` to `build/`
+  * Launches Mintlify dev server at <http://localhost:3000>
+  * Provides automatic browser refresh when files change
+  * `--skip-build` - Skip initial build and use existing build directory
+
+* **`docs build`** - Build documentation files
+  * `--watch` - Watch for file changes after building
+
+## Troubleshooting
+
+### General Mintlify errors
+
+In some cases, we use new features that are only available in the latest Mintlify CLI. If you encounter errors, ensure you have the latest version installed:
+
+```bash
+mint update
+
+# or
+
+npm install -g mint
+```
+
+### `docs dev` not working / running
+
+Re-do the [steps to set up your dev environment](https://docs.langchain.com/oss/python/contributing/documentation#set-up-local-environment), ensuring you have activated the virtual environment and installed all dependencies.
+
+> [!IMPORTANT]
+> Most of the time, `mint update` solves any `docs dev` / `make dev` issues!
+
+### Mintlify `.venv` parsing error
+
+**Problem**: Running `mint broken-links` or other Mintlify commands from the project root causes parsing errors like:
+
+```txt
+Unable to parse .venv/lib/python3.13/site-packages/soupsieve-2.7.dist-info/licenses/LICENSE.md
+- 3:48: Unexpected character '@' (U+0040) in name
+```
+
+**Root Cause**: Mintlify tries to parse all files in the directory, including Python virtual environment files that contain invalid MDX syntax.
+
+**Solutions** (in order of preference):
+
+1. **Use the safe Make commands** (recommended):
+
+   ```bash
+   make mint-broken-links  # Builds docs first, then checks links (excludes integrations)
+   ```
+
+2. **Run Mintlify commands from the build directory**:
+
+   ```bash
+   cd build               # Change to build directory where final docs are
+   mint broken-links      # Now safe to run
+   ```
+
+**Why this works**: The solution ensures Mintlify commands run from the `build/` directory where the final documentation is generated, which is the correct place to check for broken links. This avoids scanning the Python virtual environment in the project root.
+
+**Prevention**: Always use the provided Make commands instead of running raw `mint` commands from the project root.
+
+### Warning: page doesn't exist
+
+If adding a new group, ensure the root `index.mdx` is included in the `pages` array like:
+
+```json
+{
+  "group": "New group",
+  "pages": ["new-group/index", "new-group/other-page"]
+}
+```
+
+If the trailing `/index` (no extension included) is omitted, the Mintlify parser will raise a warning even though the site will still build.
+
